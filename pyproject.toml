@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "paperlibrary"
+version = "0.1.0"
+description = ""
+authors = ["Lukas Winkler <git@lw1.at>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.24.0"
+click = "^7.1.2"
+dataclasses-json = "^0.5.2"
+tzlocal = "^2.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+pap = "paperlibrary.pap:cli"

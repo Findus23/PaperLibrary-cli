@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional, List
 
-from dataclasses_json import DataClassJsonMixin, dataclass_json, Undefined, config
+from dataclasses_json import DataClassJsonMixin, config
 from marshmallow import fields
 
 
@@ -35,7 +35,6 @@ class Paper(DataClassJsonMixin):
         return self.pdfs[0]
 
 
-@dataclass_json()
 @dataclass
 class Author(DataClassJsonMixin):
     url: str
@@ -43,3 +42,11 @@ class Author(DataClassJsonMixin):
     name: str
     affiliation: Optional[str]
     orcid_id: Optional[str]
+
+
+@dataclass
+class Keyword(DataClassJsonMixin):
+    url: str
+    papers: List[Paper]
+    name: str
+    schema: str

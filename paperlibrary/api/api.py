@@ -2,7 +2,7 @@ from typing import List
 
 from requests import Session
 
-from paperlibrary.api.models import Author, PDF
+from paperlibrary.api.models import Author, PDF, Keyword
 
 
 class PaperLibraryAPI:
@@ -16,6 +16,10 @@ class PaperLibraryAPI:
     def fetch_authors(self) -> List[Author]:
         r = self.s.get(self.baseURL + "authors/")
         return Author.schema().loads(r.text, many=True)
+
+    def fetch_keywords(self) -> List[Author]:
+        r = self.s.get(self.baseURL + "keywords/")
+        return Keyword.schema().loads(r.text, many=True)
 
     def fetch_pdfs(self) -> List[PDF]:
         r = self.s.get(self.baseURL + "pdfs/")

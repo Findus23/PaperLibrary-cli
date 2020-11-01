@@ -9,11 +9,19 @@ from paperlibrary.library import write_symlinks, update_pdfs
 def cli():
     pass
 
+
 @cli.command()
 def update():
-    api=PaperLibraryAPI(url,auth_token=auth_token)
+    api = PaperLibraryAPI(url, auth_token=auth_token)
     write_symlinks(api)
     update_pdfs(api)
+
+
+@cli.command()
+def test():
+    api = PaperLibraryAPI(url, auth_token=auth_token)
+
+    print(api.fetch_papers())
 
 
 if __name__ == '__main__':

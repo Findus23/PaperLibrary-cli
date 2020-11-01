@@ -10,6 +10,7 @@ requests = "^2.24.0"
 click = "^7.1.2"
 dataclasses-json = "^0.5.2"
 tzlocal = "^2.1"
+alive-progress = "^1.6.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

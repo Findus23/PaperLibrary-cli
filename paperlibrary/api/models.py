@@ -7,12 +7,22 @@ from marshmallow import fields
 
 
 @dataclass
+class Note(DataClassJsonMixin):
+    paper: int
+    recommended_by: List[str]
+    custom_title: str
+    notes_md: str
+    notes_html: str
+
+
+@dataclass
 class PDF(DataClassJsonMixin):
     id: int
+    url: str
     file: str
-    sha265: str
+    sha256: str
     type: str
-    preview: str
+    preview: Optional[str]
     updated_at: datetime = field(
         metadata=config(
             encoder=datetime.isoformat,
@@ -24,15 +34,33 @@ class PDF(DataClassJsonMixin):
 
 @dataclass
 class Paper(DataClassJsonMixin):
-    id: int
+    # id: int
     url: str
     title: str
     pdfs: List[PDF]
-    doi: str
+    doi: Optional[str]
+    note: Optional[Note]
 
     @property
-    def main_pdf(self) -> PDF:
+    def main_pdf(self) -> Optional[PDF]:
+        if not self.pdfs:
+            return None
         return self.pdfs[0]
+
+
+@dataclass
+class PaperComplete(Paper):
+    keywords: List[str]
+    authors: List[str]
+    first_author: str
+    publication: str
+    doctype: str
+    arxiv_id: str
+    bibcode: str
+    year: int
+    pubdate: str  # TODO: to datetime
+    entry_date: str  # TODO: to datetime
+    citation_count: int
 
 
 @dataclass
@@ -40,8 +68,13 @@ class Author(DataClassJsonMixin):
     url: str
     papers: List[Paper]
     name: str
+    pretty_name: Optional[str]
     affiliation: Optional[str]
     orcid_id: Optional[str]
+
+    @property
+    def display_name(self):
+        return self.pretty_name if self.pretty_name else self.name
 
 
 @dataclass
@@ -49,4 +82,4 @@ class Keyword(DataClassJsonMixin):
     url: str
     papers: List[Paper]
     name: str
-    schema: str
+    kw_schema: str

@@ -2,7 +2,7 @@ import click
 
 from paperlibrary.api import PaperLibraryAPI
 from paperlibrary.config import url, auth_token
-from paperlibrary.library import write_symlinks, update_pdfs
+from paperlibrary.library import write_symlinks, update_pdfs, write_bibliography
 
 
 @click.group()
@@ -13,6 +13,7 @@ def cli():
 @cli.command()
 def update():
     api = PaperLibraryAPI(url, auth_token=auth_token)
+    write_bibliography(api)
     write_symlinks(api)
     update_pdfs(api)
 

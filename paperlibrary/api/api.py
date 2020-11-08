@@ -36,6 +36,10 @@ class PaperLibraryAPI:
                 years[paper.year] = [paper]
         return years
 
+    def fetch_bibliography(self) -> str:
+        r = self.s.get(self.baseURL + "bibtex/")
+        return r.text
+
     def fetch_pdfs(self) -> List[PDF]:
         r = self.s.get(self.baseURL + "pdfs/")
         return PDF.schema().loads(r.text, many=True)

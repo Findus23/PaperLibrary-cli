@@ -8,6 +8,7 @@ from alive_progress import alive_bar
 from tzlocal import get_localzone
 
 from paperlibrary.api import PaperLibraryAPI
+from paperlibrary.api.models import Paper
 from paperlibrary.config import basedir
 
 
@@ -20,6 +21,17 @@ def format_filename(s: str) -> str:
     return filename
 
 
+def link_file(pdf_dir: Path, directory: Path, paper: Paper, filename: str = None) -> None:
+    if not paper.main_pdf:
+        return
+    if filename is None:
+        filename = paper.title
+
+    sourcefile = pdf_dir / f"{paper.main_pdf.id}.pdf"
+    targetfile = directory / "{}.pdf".format(format_filename(filename))
+    targetfile.symlink_to(sourcefile)
+
+
 def write_symlinks(api: PaperLibraryAPI):
     ...
     pdf_dir = basedir / "pdfs"
@@ -30,8 +42,9 @@ def write_symlinks(api: PaperLibraryAPI):
     year_dir = basedir / "by_year"
     title_dir = basedir / "by_title"
     custom_title_dir = basedir / "by_custom_title"
+    citation_key_dir = basedir / "by_citation_key"
 
-    for directory in [author_dir, keyword_dir, year_dir, title_dir, custom_title_dir]:
+    for directory in [author_dir, keyword_dir, year_dir, title_dir, custom_title_dir, citation_key_dir]:
         shutil.rmtree(directory, ignore_errors=True)
         directory.mkdir()
 
@@ -39,45 +52,30 @@ def write_symlinks(api: PaperLibraryAPI):
         author_subdir = author_dir / format_filename(author.display_name)
         author_subdir.mkdir()
         for paper in author.papers:
-            if not paper.main_pdf:
-                continue
-            sourcefile = pdf_dir / f"{paper.main_pdf.id}.pdf"
-            targetfile = author_subdir / "{}.pdf".format(format_filename(paper.title))
-            targetfile.symlink_to(sourcefile)
+            link_file(pdf_dir, author_subdir, paper)
 
     for keyword in api.fetch_keywords():
         keyword_subdir = keyword_dir / format_filename(keyword.name)
         keyword_subdir.mkdir()
         for paper in keyword.papers:
-            if not paper.main_pdf:
-                continue
-            sourcefile = pdf_dir / f"{paper.main_pdf.id}.pdf"
-            targetfile = keyword_subdir / "{}.pdf".format(format_filename(paper.title))
-            targetfile.symlink_to(sourcefile)
+            link_file(pdf_dir, keyword_subdir, paper)
 
     for paper in api.fetch_papers():
-        if not paper.main_pdf:
-            continue
+        link_file(pdf_dir, title_dir, paper, paper.title)
 
-        sourcefile = pdf_dir / f"{paper.main_pdf.id}.pdf"
-        targetfile = title_dir / "{}.pdf".format(format_filename(paper.title))
-        targetfile.symlink_to(sourcefile)
-
-        if not paper.note:
+        if not paper.custom_title:
             continue
-        sourcefile = pdf_dir / f"{paper.main_pdf.id}.pdf"
-        targetfile = custom_title_dir / "{}.pdf".format(format_filename(paper.note.custom_title))
-        targetfile.symlink_to(sourcefile)
+        link_file(pdf_dir, custom_title_dir, paper, paper.custom_title)
+
+        if not paper.custom_title:
+            continue
+        link_file(pdf_dir, citation_key_dir, paper, paper.citation_key)
 
     for year, papers in api.fetch_papers_by_year().items():
         year_subdir = year_dir / str(year)
         year_subdir.mkdir()
         for paper in papers:
-            if not paper.main_pdf:
-                continue
-            sourcefile = pdf_dir / f"{paper.main_pdf.id}.pdf"
-            targetfile = year_subdir / "{}.pdf".format(format_filename(paper.title))
-            targetfile.symlink_to(sourcefile)
+            link_file(pdf_dir, year_subdir, paper)
 
 
 def download_file(api: PaperLibraryAPI, url: str, target_file: Path):
@@ -122,3 +120,10 @@ def update_pdfs(api: PaperLibraryAPI):
             else:
                 print("remote file is newer")
                 download_file(api, pdf.file, pdf_file)
+
+
+def write_bibliography(api: PaperLibraryAPI):
+    bib = api.fetch_bibliography()
+    target_file = basedir / "bibliography.bib"
+    with target_file.open("w") as f:
+        f.write(bib)

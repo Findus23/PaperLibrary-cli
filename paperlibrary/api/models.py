@@ -7,15 +7,6 @@ from marshmallow import fields
 
 
 @dataclass
-class Note(DataClassJsonMixin):
-    paper: int
-    recommended_by: List[str]
-    custom_title: str
-    notes_md: str
-    notes_html: str
-
-
-@dataclass
 class PDF(DataClassJsonMixin):
     id: int
     url: str
@@ -37,9 +28,9 @@ class Paper(DataClassJsonMixin):
     # id: int
     url: str
     title: str
+    custom_title: str
     pdfs: List[PDF]
     doi: Optional[str]
-    note: Optional[Note]
 
     @property
     def main_pdf(self) -> Optional[PDF]:
@@ -55,12 +46,18 @@ class PaperComplete(Paper):
     first_author: str
     publication: str
     doctype: str
-    arxiv_id: str
+    arxiv_id: Optional[str]
     bibcode: str
     year: int
     pubdate: str  # TODO: to datetime
     entry_date: str  # TODO: to datetime
     citation_count: int
+    citation_key: Optional[str]
+    recommended_by: List[str]
+    tags: List[str]
+    custom_title: str
+    notes_md: str
+    notes_html: str
 
 
 @dataclass

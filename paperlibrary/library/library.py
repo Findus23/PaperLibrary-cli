@@ -9,7 +9,7 @@ from tzlocal import get_localzone
 
 from paperlibrary.api import PaperLibraryAPI
 from paperlibrary.api.models import Paper
-from paperlibrary.config import basedir
+from paperlibrary.config import Config
 
 
 def format_filename(s: str) -> str:
@@ -32,8 +32,8 @@ def link_file(pdf_dir: Path, directory: Path, paper: Paper, filename: str = None
     targetfile.symlink_to(sourcefile)
 
 
-def write_symlinks(api: PaperLibraryAPI):
-    ...
+def write_symlinks(api: PaperLibraryAPI, config: Config):
+    basedir = config.basedir_path
     pdf_dir = basedir / "pdfs"
     pdf_dir.mkdir(exist_ok=True)
 
@@ -49,12 +49,16 @@ def write_symlinks(api: PaperLibraryAPI):
         directory.mkdir()
 
     for author in api.fetch_authors():
+        if not author.papers:
+            continue
         author_subdir = author_dir / format_filename(author.display_name)
         author_subdir.mkdir()
         for paper in author.papers:
             link_file(pdf_dir, author_subdir, paper)
 
     for keyword in api.fetch_keywords():
+        if not keyword.papers:
+            continue
         keyword_subdir = keyword_dir / format_filename(keyword.name)
         keyword_subdir.mkdir()
         for paper in keyword.papers:
@@ -100,8 +104,8 @@ def hash_file(file: Path, buffer_size=65536) -> str:
     return sha256.hexdigest()
 
 
-def update_pdfs(api: PaperLibraryAPI):
-    pdf_dir = basedir / "pdfs"
+def update_pdfs(api: PaperLibraryAPI, config: Config):
+    pdf_dir = config.basedir_path / "pdfs"
     pdf_dir.mkdir(exist_ok=True)
 
     for pdf in api.fetch_pdfs():
@@ -122,8 +126,8 @@ def update_pdfs(api: PaperLibraryAPI):
                 download_file(api, pdf.file, pdf_file)
 
 
-def write_bibliography(api: PaperLibraryAPI):
+def write_bibliography(api: PaperLibraryAPI, config: Config):
     bib = api.fetch_bibliography()
-    target_file = basedir / "bibliography.bib"
+    target_file = config.basedir_path / "bibliography.bib"
     with target_file.open("w") as f:
         f.write(bib)

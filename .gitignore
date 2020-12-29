@@ -2,4 +2,3 @@
 __pycache__/
 library/
 !paperlibrary/library
-paperlibrary/config.py

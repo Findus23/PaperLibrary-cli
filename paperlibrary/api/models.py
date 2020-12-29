@@ -47,11 +47,11 @@ class PaperComplete(Paper):
     publication: str
     doctype: str
     arxiv_id: Optional[str]
-    bibcode: str
+    bibcode: Optional[str]
     year: int
     pubdate: str  # TODO: to datetime
     entry_date: str  # TODO: to datetime
-    citation_count: int
+    citation_count: Optional[int]
     citation_key: Optional[str]
     recommended_by: List[str]
     tags: List[str]

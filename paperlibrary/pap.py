@@ -1,7 +1,7 @@
 import click
 
 from paperlibrary.api import PaperLibraryAPI
-from paperlibrary.config import get_config, Config, save_config
+from paperlibrary.config import get_config, Config, save_config, config_check
 from paperlibrary.library import write_symlinks, update_pdfs, write_bibliography
 
 
@@ -15,6 +15,7 @@ def cli(ctx):
 @cli.command()
 @click.pass_obj
 def update(config: Config):
+    config_check(config)
     api = PaperLibraryAPI(config.url, auth_token=config.auth_token)
     write_bibliography(api, config)
     write_symlinks(api, config)

@@ -31,8 +31,11 @@ def get_config() -> Optional[Config]:
         return
 
 
+def config_check(config: Config):
+    if not config:
+        print('please run "pap init" first to create a config file')
+        exit()
+
 def save_config(config: Config) -> None:
     with config_path.open("w") as f:
         yaml.safe_dump(config.to_dict(), f)
-
-

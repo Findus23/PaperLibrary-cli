@@ -25,7 +25,7 @@ class PDF(DataClassJsonMixin):
 
 @dataclass
 class Paper(DataClassJsonMixin):
-    # id: int
+    id: int
     url: str
     title: str
     custom_title: str
@@ -47,6 +47,8 @@ class PaperComplete(Paper):
     publication: str
     doctype: str
     arxiv_id: Optional[str]
+    arxiv_class: Optional[str]
+    ads_version: Optional[int]
     bibcode: Optional[str]
     year: int
     pubdate: str  # TODO: to datetime
@@ -56,12 +58,14 @@ class PaperComplete(Paper):
     recommended_by: List[str]
     tags: List[str]
     custom_title: str
-    notes_md: str
-    notes_html: str
+    notes_md: Optional[str]
+    notes_html: Optional[str]
+    notes_updated_at: Optional[str]
 
 
 @dataclass
 class Author(DataClassJsonMixin):
+    id: int
     url: str
     papers: List[Paper]
     name: str
@@ -76,7 +80,16 @@ class Author(DataClassJsonMixin):
 
 @dataclass
 class Keyword(DataClassJsonMixin):
+    id: int
     url: str
     papers: List[Paper]
     name: str
     kw_schema: str
+
+
+@dataclass
+class Note(DataClassJsonMixin):
+    paper: int
+    text_md: str
+    text_html: str
+    updated_at: str

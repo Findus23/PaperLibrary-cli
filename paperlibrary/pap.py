@@ -1,11 +1,12 @@
 import click
+from click_default_group import DefaultGroup
 
 from paperlibrary.api import PaperLibraryAPI
 from paperlibrary.config import get_config, Config, save_config, config_check
-from paperlibrary.library import write_symlinks, update_pdfs, write_bibliography
+from paperlibrary.library import write_symlinks, update_pdfs, write_bibliography, update_notes, update_meta
 
 
-@click.group()
+@click.group(cls=DefaultGroup, default="update",default_if_no_args=True)
 @click.pass_context
 def cli(ctx):
     ctx.obj = get_config()
@@ -18,8 +19,10 @@ def update(config: Config):
     config_check(config)
     api = PaperLibraryAPI(config.url, auth_token=config.auth_token)
     write_bibliography(api, config)
-    write_symlinks(api, config)
     update_pdfs(api, config)
+    update_meta(api, config)
+    update_notes(api, config)
+    write_symlinks(api, config)
 
 
 @cli.command()

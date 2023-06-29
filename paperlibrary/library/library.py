@@ -3,6 +3,7 @@ import os
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
+from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
 
 from alive_progress import alive_bar
 from tzlocal import get_localzone
@@ -179,5 +180,7 @@ def update_notes(api: PaperLibraryAPI, config: Config):
 def write_bibliography(api: PaperLibraryAPI, config: Config):
     bib = api.fetch_bibliography()
     target_file = config.basedir_path / "bibliography.bib"
+    target_file.chmod(S_IWUSR | S_IREAD)
     with target_file.open("w") as f:
         f.write(bib)
+    target_file.chmod(S_IREAD | S_IRGRP | S_IROTH)

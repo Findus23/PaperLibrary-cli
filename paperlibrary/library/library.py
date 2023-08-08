@@ -51,6 +51,8 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
     custom_title_dir = basedir / "by_custom_title"
     citation_key_dir = basedir / "by_citation_key"
 
+    tags = set()
+
     for directory in [author_dir, keyword_dir, year_dir, title_dir, tags_dir, custom_title_dir, citation_key_dir]:
         shutil.rmtree(directory, ignore_errors=True)
         directory.mkdir()
@@ -77,6 +79,7 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
             tag_dir = tags_dir / tag
             tag_dir.mkdir(exist_ok=True, parents=True)
             link_file(pdf_dir, tag_dir, paper, paper.title)
+            tags.add(tag)
 
         if not paper.custom_title:
             continue
@@ -91,6 +94,9 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
         year_subdir.mkdir()
         for paper in papers:
             link_file(pdf_dir, year_subdir, paper)
+
+    for tag in tags:
+        write_bibliography(api, config, tag)
 
 
 def download_file(api: PaperLibraryAPI, url: str, target_file: Path):
@@ -176,8 +182,13 @@ def update_notes(api: PaperLibraryAPI, config: Config):
         api.update_note(paper.id, file_text)
 
 
-def write_bibliography(api: PaperLibraryAPI, config: Config):
-    bib = api.fetch_bibliography()
-    target_file = config.basedir_path / "bibliography.bib"
+def write_bibliography(api: PaperLibraryAPI, config: Config, tag: str = None):
+    tags_dir = config.basedir_path / "by_tags"
+    if tag:
+        dir = tags_dir / tag
+    else:
+        dir = config.basedir_path
+    bib = api.fetch_bibliography(tag)
+    target_file = dir / "bibliography.bib"
     with target_file.open("w") as f:
         f.write(bib)

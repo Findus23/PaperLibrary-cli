@@ -45,8 +45,8 @@ class PaperLibraryAPI:
         return years
 
     @lru_cache
-    def fetch_bibliography(self) -> str:
-        r = self.s.get(self.baseURL + "bibtex/")
+    def fetch_bibliography(self, tag=None) -> str:
+        r = self.s.get(self.baseURL + "bibtex/", params={"tag": tag})
         r.raise_for_status()
         return r.text
 

@@ -190,5 +190,9 @@ def write_bibliography(api: PaperLibraryAPI, config: Config, tag: str = None):
         dir = config.basedir_path
     bib = api.fetch_bibliography(tag)
     target_file = dir / "bibliography.bib"
+    if target_file.exists():
+        target_file.chmod(0o644)
     with target_file.open("w") as f:
         f.write(bib)
+    target_file.chmod(0o444)
+

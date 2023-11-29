@@ -195,4 +195,3 @@ def write_bibliography(api: PaperLibraryAPI, config: Config, tag: str = None):
     with target_file.open("w") as f:
         f.write(bib)
     target_file.chmod(0o444)
-

@@ -3,7 +3,6 @@ import os
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
-from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
 
 from alive_progress import alive_bar
 from tzlocal import get_localzone
@@ -78,6 +77,7 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
             tag_dir = tags_dir / tag
             tag_dir.mkdir(exist_ok=True, parents=True)
             link_file(pdf_dir, tag_dir, paper, paper.title)
+            tags.add(tag)
 
         if not paper.custom_title:
             continue
@@ -92,6 +92,9 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
         year_subdir.mkdir()
         for paper in papers:
             link_file(pdf_dir, year_subdir, paper)
+
+    for tag in tags:
+        write_bibliography(api, config, tag)
 
 
 def download_file(api: PaperLibraryAPI, url: str, target_file: Path):
@@ -177,10 +180,16 @@ def update_notes(api: PaperLibraryAPI, config: Config):
         api.update_note(paper.id, file_text)
 
 
-def write_bibliography(api: PaperLibraryAPI, config: Config):
-    bib = api.fetch_bibliography()
-    target_file = config.basedir_path / "bibliography.bib"
-    target_file.chmod(S_IWUSR | S_IREAD)
+def write_bibliography(api: PaperLibraryAPI, config: Config, tag: str = None):
+    tags_dir = config.basedir_path / "by_tags"
+    if tag:
+        dir = tags_dir / tag
+    else:
+        dir = config.basedir_path
+    bib = api.fetch_bibliography(tag)
+    target_file = dir / "bibliography.bib"
+    if target_file.exists():
+        target_file.chmod(0o644)
     with target_file.open("w") as f:
         f.write(bib)
-    target_file.chmod(S_IREAD | S_IRGRP | S_IROTH)
+    target_file.chmod(0o444)

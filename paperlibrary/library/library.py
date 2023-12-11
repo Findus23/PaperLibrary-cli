@@ -51,6 +51,8 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
     custom_title_dir = basedir / "by_custom_title"
     citation_key_dir = basedir / "by_citation_key"
 
+    tags = set()
+
     for directory in [author_dir, keyword_dir, year_dir, title_dir, tags_dir, custom_title_dir, citation_key_dir]:
         shutil.rmtree(directory, ignore_errors=True)
         directory.mkdir()

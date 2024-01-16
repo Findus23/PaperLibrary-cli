@@ -57,6 +57,7 @@ class PaperComplete(Paper):
     citation_key: Optional[str]
     recommended_by: List[str]
     tags: List[str]
+    citename: Optional[str]
     custom_title: str
     notes_md: Optional[str]
     notes_html: Optional[str]

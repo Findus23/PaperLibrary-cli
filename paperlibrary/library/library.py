@@ -50,10 +50,12 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
     title_dir = basedir / "by_title"
     custom_title_dir = basedir / "by_custom_title"
     citation_key_dir = basedir / "by_citation_key"
+    citename_dir = basedir / "by_citename"
 
     tags = set()
 
-    for directory in [author_dir, keyword_dir, year_dir, title_dir, tags_dir, custom_title_dir, citation_key_dir]:
+    for directory in [author_dir, keyword_dir, year_dir, title_dir, tags_dir, custom_title_dir, citation_key_dir,
+                      citename_dir]:
         shutil.rmtree(directory, ignore_errors=True)
         directory.mkdir()
 
@@ -81,13 +83,13 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
             link_file(pdf_dir, tag_dir, paper, paper.title)
             tags.add(tag)
 
-        if not paper.custom_title:
-            continue
-        link_file(pdf_dir, custom_title_dir, paper, paper.custom_title)
+        if paper.custom_title:
+            link_file(pdf_dir, custom_title_dir, paper, paper.custom_title)
 
-        if not paper.custom_title:
-            continue
-        link_file(pdf_dir, citation_key_dir, paper, paper.citation_key)
+        if paper.citation_key:
+            link_file(pdf_dir, citation_key_dir, paper, paper.citation_key)
+        if paper.citename:
+            link_file(pdf_dir, citename_dir, paper, paper.citename)
 
     for year, papers in api.fetch_papers_by_year().items():
         year_subdir = year_dir / str(year)

@@ -119,14 +119,18 @@ def download_file(api: PaperLibraryAPI, url: str, target_file: Path):
 
 
 def hash_file(file: Path, buffer_size=65536) -> str:
-    sha256 = hashlib.sha256()
-    with file.open("rb") as f:
-        while True:
-            data = f.read(buffer_size)
-            if not data:
-                break
-            sha256.update(data)
-    return sha256.hexdigest()
+    try:
+        with file.open("rb") as f:
+            return hashlib.file_digest(f, "sha256").hexdigest()
+    except AttributeError:
+        sha256 = hashlib.sha256()
+        with file.open("rb") as f:
+            while True:
+                data = f.read(buffer_size)
+                if not data:
+                    break
+                sha256.update(data)
+        return sha256.hexdigest()
 
 
 def update_pdfs(api: PaperLibraryAPI, config: Config):

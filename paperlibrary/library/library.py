@@ -1,7 +1,6 @@
 import hashlib
 import os
 import shutil
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -156,8 +155,12 @@ def update_meta(api: PaperLibraryAPI, config: Config):
     meta_dir = config.basedir_path / "meta"
     meta_dir.mkdir(exist_ok=True)
     for paper in api.fetch_papers():
-        with (meta_dir / f"{paper.id}.json").open("w") as f:
+        meta_file = meta_dir / f"{paper.id}.json"
+        if meta_file.exists():
+            meta_file.chmod(0o644)
+        with meta_file.open("w") as f:
             f.write(paper.to_json(indent=2, ensure_ascii=False))
+        meta_file.chmod(0o444)
 
 
 def update_notes(api: PaperLibraryAPI, config: Config):

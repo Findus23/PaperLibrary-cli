@@ -1,6 +1,7 @@
 import hashlib
 import os
 import shutil
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -102,14 +103,20 @@ def write_symlinks(api: PaperLibraryAPI, config: Config):
 
 
 def download_file(api: PaperLibraryAPI, url: str, target_file: Path):
+    print("downloading", url, end=" ", flush=True)
     r = api.s.get(url)
     r.raise_for_status()
-    with alive_bar(int(r.headers["Content-Length"])) as bar:
+    file_size = int(r.headers["Content-Length"])
+    if file_size > 30 * 1024 * 1024:
+        with alive_bar(int(r.headers["Content-Length"])) as bar:
+            with target_file.open("wb") as f:
+                for chunk in r.iter_content(1024):
+                    bar(1024)
+                    f.write(chunk)
+    else:
         with target_file.open("wb") as f:
-            for chunk in r.iter_content(1024):
-                for _ in range(1024):
-                    bar()
-                f.write(chunk)
+            f.write(r.content)
+    print("done")
 
 
 def hash_file(file: Path, buffer_size=65536) -> str:

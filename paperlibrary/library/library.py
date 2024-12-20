@@ -163,7 +163,7 @@ def update_meta(api: PaperLibraryAPI, config: Config):
         if meta_file.exists():
             meta_file.chmod(0o644)
         with meta_file.open("w") as f:
-            f.write(paper.to_json(indent=2, ensure_ascii=False))
+            f.write(paper.model_dump_json(indent=2))
         meta_file.chmod(0o444)
 
 

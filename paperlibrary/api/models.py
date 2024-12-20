@@ -1,30 +1,25 @@
-from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Optional, List
 
-from dataclasses_json import DataClassJsonMixin, config
-from marshmallow import fields
+from pydantic import BaseModel
 
 
-@dataclass
-class PDF(DataClassJsonMixin):
+class PDF(BaseModel):
     id: int
     url: str
     file: str
     sha256: str
     type: str
     preview: Optional[str]
-    updated_at: datetime = field(
-        metadata=config(
-            encoder=datetime.isoformat,
-            decoder=datetime.fromisoformat,
-            mm_field=fields.DateTime(format='iso')
-        )
-    )
+    # updated_at: datetime = field(
+    #     metadata=config(
+    #         encoder=datetime.isoformat,
+    #         decoder=datetime.fromisoformat,
+    #         mm_field=fields.DateTime(format='iso')
+    #     )
+    # )
 
 
-@dataclass
-class Paper(DataClassJsonMixin):
+class Paper(BaseModel):
     id: int
     url: str
     title: str
@@ -39,7 +34,6 @@ class Paper(DataClassJsonMixin):
         return self.pdfs[0]
 
 
-@dataclass
 class PaperComplete(Paper):
     keywords: List[str]
     authors: List[str]
@@ -64,8 +58,7 @@ class PaperComplete(Paper):
     notes_updated_at: Optional[str]
 
 
-@dataclass
-class Author(DataClassJsonMixin):
+class Author(BaseModel):
     id: int
     url: str
     papers: List[Paper]
@@ -79,8 +72,7 @@ class Author(DataClassJsonMixin):
         return self.pretty_name if self.pretty_name else self.name
 
 
-@dataclass
-class Keyword(DataClassJsonMixin):
+class Keyword(BaseModel):
     id: int
     url: str
     papers: List[Paper]
@@ -88,8 +80,7 @@ class Keyword(DataClassJsonMixin):
     kw_schema: str
 
 
-@dataclass
-class Note(DataClassJsonMixin):
+class Note(BaseModel):
     paper: int
     text_md: str
     text_html: str

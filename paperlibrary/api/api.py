@@ -19,19 +19,19 @@ class PaperLibraryAPI:
     def fetch_papers(self) -> List[PaperComplete]:
         r = self.s.get(self.baseURL + "papers/")
         r.raise_for_status()
-        return PaperComplete.schema().loads(r.text, many=True)
+        return [PaperComplete(**item) for item in r.json()]
 
     @lru_cache
     def fetch_authors(self) -> List[Author]:
         r = self.s.get(self.baseURL + "authors/")
         r.raise_for_status()
-        return Author.schema().loads(r.text, many=True)
+        return [Author(**item) for item in r.json()]
 
     @lru_cache
     def fetch_keywords(self) -> List[Keyword]:
         r = self.s.get(self.baseURL + "keywords/")
         r.raise_for_status()
-        return Keyword.schema().loads(r.text, many=True)
+        return [Keyword(**item) for item in r.json()]
 
     @lru_cache
     def fetch_papers_by_year(self) -> Dict[int, List[PaperComplete]]:
@@ -54,7 +54,7 @@ class PaperLibraryAPI:
     def fetch_pdfs(self) -> List[PDF]:
         r = self.s.get(self.baseURL + "pdfs/")
         r.raise_for_status()
-        return PDF.schema().loads(r.text, many=True)
+        return [PDF(**item) for item in r.json()]
 
     def upload_pdf(self, pdf, file: Path) -> PDF:
         with file.open("rb") as f:
@@ -62,14 +62,16 @@ class PaperLibraryAPI:
                 "file": f,
             })
             r.raise_for_status()
-        return PDF.schema().loads(r.text)
 
-    def update_note(self, id: int, file_text: str) -> None:
+        return PDF.model_validate_json(r.text)
+
+    def update_note(self, id: int, file_text: str) -> Note:
         r = self.s.put(self.baseURL + f"notes/{id}/", json={"paper": id, "text_md": file_text})
         r.raise_for_status()
-        return Note.schema().loads(r.text)
+        return Note.model_validate_json(r.text)
 
-    def create_note(self, id: int, file_text: str) -> None:
+
+    def create_note(self, id: int, file_text: str) -> Note:
         r = self.s.post(self.baseURL + f"notes/", json={"paper": id, "text_md": file_text})
         r.raise_for_status()
-        return Note.schema().loads(r.text)
+        return Note.model_validate_json(r.text)

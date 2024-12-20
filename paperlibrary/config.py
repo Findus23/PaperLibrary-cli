@@ -3,14 +3,12 @@ from pathlib import Path
 from typing import Optional
 
 import yaml
-from dataclasses_json import dataclass_json, DataClassJsonMixin
+from pydantic import BaseModel
 
 config_path = Path("~/.config/paperlibrary.yaml").expanduser()
 
 
-@dataclass_json
-@dataclass
-class Config(DataClassJsonMixin):
+class Config(BaseModel):
     url: str
     auth_token: str
     basedir: str
@@ -26,7 +24,7 @@ def get_config() -> Optional[Config]:
             data = yaml.safe_load(f)
             if not data:
                 raise ValueError("config file is empty")
-            return Config.from_dict(data)
+            return Config.model_validate(data)
     except FileNotFoundError:
         return
 
